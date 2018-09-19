@@ -66,7 +66,6 @@ void readImages(float **X, int folders, int nimgs, int h, int w){
 }
 
 void getS(float **S, float **X, float **Xm, float **Xm_t, float *V, int X_rows, int X_cols){
-    //   Get Xm (all column with mu_j = 0)
       int mu;
       for(int pi = 0; pi < X_cols; pi++){
           mu = 0;
@@ -175,7 +174,6 @@ void getProyection(float *Img, float **Wk, int m, int k, float* Y){
 
     for(int jk=0; jk < k; jk++){
         temp = 0.0;
-//#       pragma omp parallel for num_threads(thread_count) reduction(+:temp)
         for(int im=0; im<m; im++){
             temp += Img[im]*Wk[im][jk];
         }

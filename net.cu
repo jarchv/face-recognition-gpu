@@ -24,9 +24,7 @@ float **getW(int n, int m){
 float *getBias(int n, float init){
 	float *btemp = new float[n];
 	for (int in = 0; in < n; ++in)
-	{
 		btemp[in] = init;
-	}
 	return btemp;
 }
 
@@ -36,9 +34,8 @@ float *getPred(float *input, int isize, int osize, float **nn_W, float *nn_b){
 
 	for(int i=0; i < osize; i++){
 		temp = 0.0;
-		for(int j=0; j < isize; j++){
+		for(int j=0; j < isize; j++)
 			temp += nn_W[i][j]*input[j];
-		}
 
 		temp += nn_b[i];
 		prediction[i] = temp;
@@ -54,29 +51,28 @@ __device__ void softMax(int classes){
 		sum_temp  += output[is];
 	}
 
-	for (int is = 0; is < classes; is++){
+	for (int is = 0; is < classes; is++)
 		output[is] = output[is]/sum_temp;
-	}
 }
 
 __device__ void crossEntropy(float* labels, int classes, int inputId, int tid, int epoch){
 	float temp = 0.0;
-	for (int is = 0; is < classes; is++){
+	for (int is = 0; is < classes; is++)
 		temp -= labels[inputId*classes + is]*log(output[is]); 
-	}
 
 	if (tid == 0)
-		loss += temp/((float)classes * 400);
-		if (inputId == 399)
-			printf("epoch %d -> loss = %f\n", epoch, loss);  
+		loss += temp/((float)classes * 320);
+		if (inputId == 397)
+			printf("epoch %3d -> loss = %f\n", epoch, loss);  
 }
-/*
-__device__ void backProp(float* dev_flatW,float* dev_b,float* dev_Y, int nCPs,int nfiles,float* labels,float lr,int inputId, int tid)
+
+__device__ void backProp(float* dev_flatW, float* dev_b,float* dev_Y, int nCPs, float lr,int inputId, int tid, float delta)
 {
-    
-    float temp = -label[inputId*nfiles + tid]*(1-output[tid]);
+	for (int ivec = 0; ivec < nCPs; ivec++)
+		dev_flatW[tid * nCPs + ivec] -= delta * dev_Y[inputId*nCPs + ivec] * lr;
+	dev_b[tid]   -= delta * lr; 
 }
-*/
+
 __global__ void gpu_train( 
                 float* dev_Y, 
                 int idxInput,
@@ -108,15 +104,16 @@ __global__ void gpu_train(
         	crossEntropy(dev_labels, classes, idxInput, tid, epoch);
 		
 		float derv = -dev_labels[idxInput*classes + tid]*(1.0-output[tid]);
-        for (int ivec = 0; ivec < nCPs; ivec++)
+		backProp(dev_flatW, dev_b, dev_Y, nCPs, lr, idxInput, tid, derv);
+		/*
+		for (int ivec = 0; ivec < nCPs; ivec++)
         {
             dev_flatW[tid * nCPs + ivec] -= derv * dev_Y[idxInput*nCPs + ivec] * lr;
         }
 
 		dev_b[tid]   -= derv * lr; 
+		*/
 		__syncthreads();
-		//if (epoch == 100)
-		//	printf("loss = %f\n", loss);  
     }
 }
 
@@ -133,14 +130,14 @@ __device__ void maxIndex(int size){
 	label_pred = indx;
 }
 __global__ void gpu_test( 
-	float* dev_Y, 
-	int idxInput,
-	int nCPs, 
-	int classes,   
-	float* dev_flatW,
-	float* dev_b,
-	float* dev_labels,
-	float lr)
+				float* 	dev_Y, 
+				int 	idxInput,
+				int 	nCPs, 
+				int 	classes,   
+				float* 	dev_flatW,
+				float* 	dev_b,
+				float* 	dev_labels,
+				float 	lr)
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x; 
 
@@ -155,19 +152,18 @@ __global__ void gpu_test(
         temp += dev_b[tid];
         pred[tid] = temp;
 		__syncthreads();
+
 		if (tid == 0)
         	softMax(classes);
 		__syncthreads();
-
+			
 		if (tid == 0){
 			maxIndex(classes);
 			if (((idxInput/10) == label_pred)){
-				acc++;
+				acc += 1.0;
 				if (idxInput == 399)
-					printf("\nAccuracy : %f%%\n", 100*acc/400);
+					printf("\nAccuracy : %f%%\n", 100.0*((float)acc)/80.0);
 			}
-						
-			//printf("softmax[%d] = %f, idxImg = %d, label = %d\n", tid, output[tid], idxInput, label_pred);
 		}
 	}	
 }

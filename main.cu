@@ -58,6 +58,7 @@ int main(int argc, char *argv[]){
 
     powerMethod(S, autoVec, autoVal, X_rows, tol);
     getW(Xm_t, autoVec, W, X_cols, X_rows);
+    
     /*
     int nEigenVectors = 5;
     printf("Eigenvectors (1-%d):\n", nEigenVectors);
@@ -80,12 +81,13 @@ int main(int argc, char *argv[]){
     */
 
     free(temp);
-    int key = 50;
+    int key         = 50;
+
     printf("\nfeatures = %d\n", key);
     printf("==============\n");
 
     float **Y;
-    Y = (float **)malloc(X_rows*sizeof(float*));
+    Y = (float **)malloc((X_rows)*sizeof(float*));
     for (int iy = 0; iy < X_rows; iy++)
     {
         Y[iy] = (float *)malloc(key*sizeof(float));
@@ -162,36 +164,39 @@ int main(int argc, char *argv[]){
     {
         for (int ifile = 0; ifile < X_rows; ifile++)
         {
-            gpu_train<<<1, 64>>>(   dev_Y,
-                                    ifile,
-                                    key,  
-                                    nfiles,  
-                                    dev_flatW, 
-                                    dev_b, 
-                                    dev_labels, 
-                                    lr,
-                                    epoch);
+            if (ifile%10 < 8)
+                gpu_train<<<1, 64>>>(   dev_Y,
+                                        ifile,
+                                        key,  
+                                        nfiles,  
+                                        dev_flatW, 
+                                        dev_b, 
+                                        dev_labels, 
+                                        lr,
+                                        epoch);
         }
     }
     stop   = clock();
     double elapsed = ((double)(stop-start))/CLOCKS_PER_SEC;
-    printf("\nTraining : %5lfs \n", elapsed);
+    printf("\nTraining : %5lfs \n\n", elapsed);
 
     for (int ifile = 0; ifile < X_rows; ifile++)
     {
-        gpu_test<<<1, 64>>>(dev_Y,
-            ifile,
-            key,  
-            nfiles,  
-            dev_flatW, 
-            dev_b, 
-            dev_labels, 
-            lr);
+        if (ifile%10 >= 8)
+            gpu_test<<<1, 64>>>(dev_Y,
+                ifile,
+                key,  
+                nfiles,  
+                dev_flatW, 
+                dev_b, 
+                dev_labels, 
+                lr);
     }
 /*______________________________________________________________________________
 */
     cudaFree(dev_flatW);
     cudaFree(dev_b    );
+    cudaFree(dev_Y    );
     for (int i = 0; i < X_rows; i++)
     {
         free(X [i]      );

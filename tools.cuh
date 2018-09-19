@@ -14,14 +14,14 @@
 
 #define PATH "faces/"
 
-int maxIndx(float *pred_in, int size);
-float norm(float *, int);
-void VecNormalizer(float *, int);
-void readImages(float**, int , int, int, int);
-void getS(float**, float**, float**, float**, float*, int, int);
-void getW(float **A, float **B, float **W, int m, int n);
-void showImage(float *I, int w, int h, int scale);
-float *Reconstructor(float *Img, float **Wk, int m, int k);
-void getProyection(float *Img, float **Wk, int m, int k, float* Y);
+int     maxIndx(float *pred_in, int size);
+float   norm(float *, int);
+void    VecNormalizer(float *, int);
+void    readImages(float**, int , int, int, int);
+void    getS(float**, float**, float**, float**, float*, int, int);
+void    getW(float **A, float **B, float **W, int m, int n);
+void    showImage(float *I, int w, int h, int scale);
+float*  Reconstructor(float *Img, float **Wk, int m, int k);
+void    getProyection(float *Img, float **Wk, int m, int k, float* Y);
 
 #endif
