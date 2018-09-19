@@ -2,9 +2,7 @@
 
 GPU implementation for a face recognition based on a neural network and a PCA of a set of images.
 
-## Author
 
-* **José Chávez** - [Profile](https://github.com/joseucsp	)
 
 ### Clone the repository
 ```
@@ -15,3 +13,8 @@ $ git clone https://github.com/joseucsp/face-recognition-gpu.git
 $ make
 $ ./out
 ```
+
+#### Author
+
+* *José Chávez* - [profile](https://github.com/joseucsp	)
+* jose.chavez.alvarez@ucsp.edu.pe

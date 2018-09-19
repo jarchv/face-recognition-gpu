@@ -74,17 +74,19 @@ __device__ void backProp(float* dev_flatW, float* dev_b,float* dev_Y, int nCPs, 
 }
 
 __global__ void gpu_train( 
-                float* dev_Y, 
-                int idxInput,
-                int nCPs, 
-                int classes,   
-                float* dev_flatW,
-                float* dev_b,
-                float* dev_labels,
-				float lr,
-				int epoch)
+                float* 	dev_Y, 
+                int 	idxInput,
+                int 	nCPs, 
+                int 	classes,   
+                float* 	dev_flatW,
+                float* 	dev_b,
+                float* 	dev_labels,
+				float 	lr,
+				int 	epoch)
+
 {
-    int tid = blockIdx.x * blockDim.x + threadIdx.x; 
+	
+	int tid = blockIdx.x * blockDim.x + threadIdx.x; 
 
     float temp;
     if (tid < classes){
@@ -138,6 +140,7 @@ __global__ void gpu_test(
 				float* 	dev_b,
 				float* 	dev_labels,
 				float 	lr)
+
 {
     int tid = blockIdx.x * blockDim.x + threadIdx.x; 
 

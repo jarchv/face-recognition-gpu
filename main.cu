@@ -59,7 +59,7 @@ int main(int argc, char *argv[]){
     powerMethod(S, autoVec, autoVal, X_rows, tol);
     getW(Xm_t, autoVec, W, X_cols, X_rows);
     
-    /*
+    // Reconstruccion
     int nEigenVectors = 5;
     printf("Eigenvectors (1-%d):\n", nEigenVectors);
     printf("=============\n\n");
@@ -78,7 +78,7 @@ int main(int argc, char *argv[]){
         printf("\tk -> %d\n", ir);
         showImage(temp, imgw, imgh,4);   
     }
-    */
+    
 
     free(temp);
     int key         = 50;
@@ -146,6 +146,13 @@ int main(int argc, char *argv[]){
     float *dev_b;
     float *dev_Y;
 
+    clock_t         start;
+    clock_t         stop;
+
+    printf("\nTraining:\n");
+    printf("========\n");
+    start   = clock();
+
     cudaMalloc((void **)&dev_flatW, nfiles*X_cols*sizeof(float));
     cudaMalloc((void **)&dev_b    , nfiles       *sizeof(float));
     cudaMalloc((void **)&dev_Y    , X_rows*key   *sizeof(float));
@@ -154,12 +161,7 @@ int main(int argc, char *argv[]){
     cudaMemcpy(dev_b    , nn_b ,        nfiles*sizeof(float),cudaMemcpyHostToDevice);
     cudaMemcpy(dev_Y    , flatY,    X_rows*key*sizeof(float),cudaMemcpyHostToDevice);
 
-    clock_t         start;
-    clock_t         stop;
 
-    printf("\nTraining:\n");
-    printf("========\n");
-    start   = clock();
     for (int epoch = 1; epoch <= 100; epoch++)
     {
         for (int ifile = 0; ifile < X_rows; ifile++)
@@ -176,9 +178,7 @@ int main(int argc, char *argv[]){
                                         epoch);
         }
     }
-    stop   = clock();
-    double elapsed = ((double)(stop-start))/CLOCKS_PER_SEC;
-    printf("\nTraining : %5lfs \n\n", elapsed);
+
 
     for (int ifile = 0; ifile < X_rows; ifile++)
     {
@@ -197,6 +197,9 @@ int main(int argc, char *argv[]){
     cudaFree(dev_flatW);
     cudaFree(dev_b    );
     cudaFree(dev_Y    );
+    stop   = clock();
+    double elapsed = ((double)(stop-start))/CLOCKS_PER_SEC;
+    printf("\nTraining : %5lfs \n\n", elapsed);
     for (int i = 0; i < X_rows; i++)
     {
         free(X [i]      );
