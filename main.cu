@@ -80,7 +80,7 @@ int main(int argc, char *argv[]){
     */
 
     free(temp);
-    int key = 300;
+    int key = 50;
     printf("\nfeatures = %d\n", key);
     printf("==============\n");
 
@@ -175,7 +175,7 @@ int main(int argc, char *argv[]){
     }
     stop   = clock();
     double elapsed = ((double)(stop-start))/CLOCKS_PER_SEC;
-    printf("\nTraining : %5lf \n", elapsed);
+    printf("\nTraining : %5lfs \n", elapsed);
 
     for (int ifile = 0; ifile < X_rows; ifile++)
     {
@@ -188,39 +188,7 @@ int main(int argc, char *argv[]){
             dev_labels, 
             lr);
     }
-
-    /*
-    cudaMemcpy(flatW, dev_flatW, nfiles*X_cols*sizeof(float),cudaMemcpyDeviceToHost);
-    cudaMemcpy(nn_b , dev_b    ,        nfiles*sizeof(float),cudaMemcpyDeviceToHost);
-
-    
-    for (int ifile = 0; ifile < nfiles; ifile++)
-    {
-        for (int j = 0; j < X_cols; j++)
-        {
-            nn_W[ifile][j] = flatW[ifile*X_cols + j];
-        }
-    }
-
-    float *pred_test       = new float[nfiles];
-    int rand_indx;
-    float valid=0;
-    for (int i = 0; i < X_rows; i++){
-        rand_indx = rand()%X_rows;
-        pred_test = getPred(Y[rand_indx], key, nfiles, nn_W, nn_b);
-
-        printf("label[%3d]\t= %2d\n", rand_indx/10, maxIndx(pred_test, nfiles));
-        if ((rand_indx/10) == maxIndx(pred_test, nfiles)){
-            valid++;
-        }
-        //showImage(X[rand_indx], imgw, imgh,4);
-    }
-
-    float n = (float)X_rows;
-    printf("\nAccuracy : %f%%\n", 100*valid/n);
-    */
-/*
-_________________________________________________________________________________
+/*______________________________________________________________________________
 */
     cudaFree(dev_flatW);
     cudaFree(dev_b    );

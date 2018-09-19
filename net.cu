@@ -59,7 +59,7 @@ __device__ void softMax(int classes){
 	}
 }
 
-__device__ void crossEntropy(float* labels, int classes, int inputId, int tid){
+__device__ void crossEntropy(float* labels, int classes, int inputId, int tid, int epoch){
 	float temp = 0.0;
 	for (int is = 0; is < classes; is++){
 		temp -= labels[inputId*classes + is]*log(output[is]); 
@@ -68,7 +68,7 @@ __device__ void crossEntropy(float* labels, int classes, int inputId, int tid){
 	if (tid == 0)
 		loss += temp/((float)classes * 400);
 		if (inputId == 399)
-			printf("loss = %f\n", loss);  
+			printf("epoch %d -> loss = %f\n", epoch, loss);  
 }
 /*
 __device__ void backProp(float* dev_flatW,float* dev_b,float* dev_Y, int nCPs,int nfiles,float* labels,float lr,int inputId, int tid)
@@ -105,10 +105,9 @@ __global__ void gpu_train(
         	softMax(classes);
 		__syncthreads();
 		if (tid == 0)
-        	crossEntropy(dev_labels, classes, idxInput, tid);
+        	crossEntropy(dev_labels, classes, idxInput, tid, epoch);
 		
 		float derv = -dev_labels[idxInput*classes + tid]*(1.0-output[tid]);
-		//printf(" pred[%d] = %f, softmax[%d] = %f, derv = %f, idxImg = %d\n", tid, pred[tid], tid, output[tid], derv, idxInput);
         for (int ivec = 0; ivec < nCPs; ivec++)
         {
             dev_flatW[tid * nCPs + ivec] -= derv * dev_Y[idxInput*nCPs + ivec] * lr;
@@ -117,7 +116,7 @@ __global__ void gpu_train(
 		dev_b[tid]   -= derv * lr; 
 		__syncthreads();
 		//if (epoch == 100)
-		//	printf("softmax[%d] = %f, idxImg = %d\n", tid, output[tid], idxInput);
+		//	printf("loss = %f\n", loss);  
     }
 }
 

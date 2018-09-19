@@ -8,7 +8,7 @@ float*  getBias(int n, float init);
 float*  getPred(float *input, int isize, int osize, float **nn_W, float *nn_b);
 
 __device__ void softMax(int classes);
-__device__ void crossEntropy(float* labels, int classes, int inputId, int tid);
+__device__ void crossEntropy(float* labels, int classes, int inputId, int tid, int epoch);
 __device__ void maxIndex(int size);
 
 __global__ void gpu_train( 
