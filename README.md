@@ -16,5 +16,5 @@ $ ./out
 
 #### Author
 
-* *José Chávez* - [profile](https://github.com/joseucsp	)
+* **José Chávez** - [profile](https://github.com/joseucsp	)
 * jose.chavez.alvarez@ucsp.edu.pe
